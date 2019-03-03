@@ -18,7 +18,7 @@ import datetime
 
 import login
 
-# pyinstaller --onefile --windowed --icon=app.ico scrapejob_v07.py
+# pyinstaller --onefile --windowed --icon=app.ico scrapejob.py
 
 class EasyApplyBot:
 
@@ -388,35 +388,48 @@ class EasyApplyBot:
 
 if __name__ == '__main__':
 
-    print("\nLet's scrape some jobs!\n")
+     
+    # set use of gui (T/F)
+    useGUI = True
+    
+    # use gui
+    if useGUI == True:
 
-    app = login.LoginGUI()
-    app.mainloop()
+        app = login.LoginGUI()
+        app.mainloop()
 
-    #get user info info
-    username=app.frames["StartPage"].username
-    password=app.frames["StartPage"].password
-    language=app.frames["PageOne"].language
-    position=app.frames["PageTwo"].position
-    location_code=app.frames["PageThree"].location_code
-    if location_code == 1:
-        location=app.frames["PageThree"].location
-    else:
-        location = app.frames["PageFour"].location
-    resumeloctn=app.frames["PageFive"].resumeloctn
+        #get user info info
+        username=app.frames["StartPage"].username
+        password=app.frames["StartPage"].password
+        language=app.frames["PageOne"].language
+        position=app.frames["PageTwo"].position
+        location_code=app.frames["PageThree"].location_code
+        if location_code == 1:
+            location=app.frames["PageThree"].location
+        else:
+            location = app.frames["PageFour"].location
+        resumeloctn=app.frames["PageFive"].resumeloctn
+
+    # no gui
+    if useGUI == False:
+
+        username = ''
+        password = ''
+        language = ''
+        position = ''
+        location = ''
+
+    # print input
+    print("\nThese is your input:")
 
     print  ("\nUsername:  "+ username,
-            "\nPassword:  "+ password,
-            "\nLanguage:  "+ language,
-            "\nPosition:  "+ position,
-            "\nLocation:  "+ location)
-
-    username = ''
-    password = ''
-    language = ''
-    position = ''
-    location = ''
-
-    #start bot
+        "\nPassword:  "+ password,
+        "\nLanguage:  "+ language,
+        "\nPosition:  "+ position,
+        "\nLocation:  "+ location)
+    
+    print("\nLet's scrape some jobs!\n")
+    
+    # start bot
     bot = EasyApplyBot(username,password, language, position, location) #, resumeloctn)
     bot.start_apply()
