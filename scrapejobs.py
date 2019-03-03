@@ -111,10 +111,11 @@ class EasyApplyBot:
         self.browser, _ = self.next_jobs_page(jobs_per_page)
         print("\nLooking for jobs.. Please wait..\n")
 
-        submitButton = self.browser.find_element_by_class_name(
+        self.browser.find_element_by_class_name(
             "jobs-search-dropdown__trigger-icon"
             ).click()
-        submitButton = self.browser.find_element_by_class_name(
+        
+        self.browser.find_element_by_class_name(
             "jobs-search-dropdown__option"
             ).click()
 
