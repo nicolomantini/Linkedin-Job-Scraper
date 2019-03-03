@@ -388,7 +388,6 @@ class EasyApplyBot:
 
 if __name__ == '__main__':
 
-     
     # set use of gui (T/F)
     useGUI = True
     
