@@ -18,7 +18,7 @@ import datetime
 
 import login
 
-# pyinstaller --onefile --windowed --icon=app.ico scrapejob.py
+# pyinstaller --onefile --windowed --icon=app.ico scrapejobs.py
 
 class EasyApplyBot:
 
@@ -27,15 +27,9 @@ class EasyApplyBot:
     def __init__(self,username,password, language, position, location): #, resumeloctn):
 
         dirpath = os.getcwd()
-        #print("current directory is : " + dirpath)
-        #print(dirpath + "\chromedriver.exe")
-        #foldername = os.path.basename(dirpath)
-        #print("Directory name is : " + foldername)
 
         self.language = language
         self.options = self.browser_options()
-        #self.browser = webdriver.Chrome(chrome_options=self.options)
-        #self.browser = webdriver.Chrome(executable_path = "C:/chromedriver_win32/chromedriver.exe")
         self.browser = webdriver.Chrome(chrome_options=self.options, executable_path = dirpath + "\chromedriver.exe")
         self.start_linkedin(username,password)
 
@@ -104,11 +98,6 @@ class EasyApplyBot:
 
     def applications_loop(self):
 
-        #list1 =  []
-
-        # list1=pd.DataFrame(columns=['time', 'url', 'position', 'Company', 'location', 'date', 'no. of applicants' 'description',
-        #                     'Seniority level', 'Industry', 'Employment type', 'Job function', 'Company Info'], index=np.arange(0,10000) )
-
         count_application = 1
         count_job = 0
         jobs_per_page = 0
@@ -122,10 +111,12 @@ class EasyApplyBot:
         self.browser, _ = self.next_jobs_page(jobs_per_page)
         print("\nLooking for jobs.. Please wait..\n")
 
-        submitButton = self.browser.find_element_by_class_name("jobs-search-dropdown__trigger-icon")
-        submitButton.click()
-        submitButton = self.browser.find_element_by_class_name("jobs-search-dropdown__option")
-        submitButton.click()
+        submitButton = self.browser.find_element_by_class_name(
+            "jobs-search-dropdown__trigger-icon"
+            ).click()
+        submitButton = self.browser.find_element_by_class_name(
+            "jobs-search-dropdown__option"
+            ).click()
 
         while count_application < self.MAX_APPLICATIONS:
             # sleep to make sure everything loads, add random to make us look human.
@@ -152,8 +143,7 @@ class EasyApplyBot:
                 now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
                 temp ['timestamp'] = str(now)
                 temp ['url'] = ('https://www.linkedin.com'+job)
-                #list1[count_job] = str(now)
-                #list1[count_job,1] = ('https://www.linkedin.com'+job)
+
 
 
 
@@ -165,7 +155,9 @@ class EasyApplyBot:
                     self.browser.find_element_by_xpath(
                         '//button[@aria-controls="job-details"]'
                         ).click()
-                    self.browser.find_element_by_class_name('view-more-icon').click()
+                    self.browser.find_element_by_class_name(
+                        'view-more-icon'
+                        ).click()
                     self.load_page(sleep=1)
                 except:
                     print('******* Job not valid *******\n')
@@ -389,7 +381,7 @@ class EasyApplyBot:
 if __name__ == '__main__':
 
     # set use of gui (T/F)
-    useGUI = True
+    useGUI = False
     
     # use gui
     if useGUI == True:
