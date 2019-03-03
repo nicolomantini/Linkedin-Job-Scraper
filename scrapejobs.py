@@ -104,8 +104,10 @@ class EasyApplyBot:
 
     def applications_loop(self):
 
-        list1=pd.DataFrame(columns=['time', 'url', 'position', 'Company', 'location','date', 'description',
-                            'Seniority level', 'Industry', 'Employment type', 'Job function', 'Company Info'], index=np.arange(0,10000) )
+        #list1 =  []
+
+        # list1=pd.DataFrame(columns=['time', 'url', 'position', 'Company', 'location', 'date', 'no. of applicants' 'description',
+        #                     'Seniority level', 'Industry', 'Employment type', 'Job function', 'Company Info'], index=np.arange(0,10000) )
 
         count_application = 1
         count_job = 0
@@ -138,6 +140,7 @@ class EasyApplyBot:
                 break
 
             for job in jobs:
+                temp = {}
 
                 count_job += 1
                 job_page = self.get_job_page(job)
@@ -147,108 +150,150 @@ class EasyApplyBot:
                 print(f"\nPosition {position_number}:\n {self.browser.title} \n") # {string_easy} \n")
 
                 now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-                list1.iloc[count_job,0] = str(now)
-                list1.iloc[count_job,1] = ('https://www.linkedin.com'+job)
+                temp ['timestamp'] = str(now)
+                temp ['url'] = ('https://www.linkedin.com'+job)
+                #list1[count_job] = str(now)
+                #list1[count_job,1] = ('https://www.linkedin.com'+job)
 
-                #Title, Company, temp = self.browser.title.split('|')
-                #list1.iloc[count_job,1] = Title
-                #list1.iloc[count_job,2] = Company
 
-                #button view more
+
+                """
+                click button see more
+                """
+                
                 try :
+                    self.browser.find_element_by_xpath(
+                        '//button[@aria-controls="job-details"]'
+                        ).click()
                     self.browser.find_element_by_class_name('view-more-icon').click()
                     self.load_page(sleep=1)
                 except:
                     print('******* Job not valid *******\n')
 
-                soup = BeautifulSoup (self.browser.page_source,"lxml")
 
-                #Title, Company, location and date
-                findall = soup.find("div", {"class": 'jobs-details-top-card__content-container mt6 pb5'})
+
+                """
+                Get data
+                """     
+
+                # position
                 try:
-                    list1.iloc[count_job,2] = findall.find("h1").text.strip()
-                    list1.iloc[count_job,3] = findall.find("h3").text.strip().split('\n')[1].strip()
+                    temp['position'] = self.browser.find_element_by_xpath(
+                        '//h1[@class="jobs-top-card__job-title t-24"]'
+                        ).text.strip()
                 except:
-                    list1.iloc[count_job,2] = None
-                    list1.iloc[count_job,3] = None
-
+                    temp['position'] = None
+                
+                # company
                 try:
-                    span = findall.find("span", {"class": 'jobs-details-top-card__bullet'})
-                    list1.iloc[count_job,4] = span.text.strip()
+                    temp['company'] = self.browser.find_element_by_xpath(
+                        '//span[contains(text(),"Company Name")]/following::a'
+                        ).text.strip()
                 except:
-                    list1.iloc[count_job,4] = None
-
+                    temp['company'] = None        
+                
+                # location
                 try:
-                    span = findall.find("span", string = 'Posted Date')
-                    list1.iloc[count_job,5] = span.nextSibling.strip()
+                    temp['location'] = self.browser.find_element_by_xpath(
+                        '//span[contains(text(),"Company Location")]/following::span'
+                        ).text.strip()
                 except:
-                    list1.iloc[count_job,5] = None
-
-
-                # job description
-                findall = soup.find("div", {"class": "jobs-box__html-content jobs-description-content__text t-14 t-black--light t-normal"})
-
+                    temp['location'] = None  
+                
+                # post date
                 try:
-                    span=findall.find('span')
-                    description = span.text.strip()
-                    list1.iloc[count_job,6] = description
+                    temp['post date'] = self.browser.find_element_by_xpath(
+                        '//span[contains(text(),"Posted Date")]/following::span'
+                        ).text.strip()
                 except:
-                    list1.iloc[count_job,6] = None
+                    temp['post date'] = None  
+                
+                # no. of applicants
+                try:
+                    temp['no. applicants']  = self.browser.find_element_by_xpath(
+                        '//span[contains(text(),"Number of applicants")]/following::span'
+                        ).text.strip()
+                except:
+                    temp['no. applicants'] = None  
 
-                # Job details
-                findall = soup.findAll("div", {"class": 'jobs-box__group'})
-
-                for div in findall:
-
-                    try:
-                        text = div.text.strip().split('\n')
-
-                        if text [0] == 'Seniority Level' :
-                            list1.iloc[count_job,7] = div.find('p').text.strip().replace('\n', ', ')
-                        if text [0] == 'Industry' :
-                            list1.iloc[count_job,8] = div.find('ul').text.strip().replace('\n', ', ')
-                        if text [0] == 'Employment Type' :
-                            list1.iloc[count_job,9] = div.find('p').text.strip().replace('\n', ', ')
-                        if text [0] == 'Job Functions' :
-                            list1.iloc[count_job,10] = div.find('ul').text.strip().replace('\n', ', ')
-                    except:
-                        list1.iloc[count_job,7] = None
-                        list1.iloc[count_job,8] = None
-                        list1.iloc[count_job,9] = None
-                        list1.iloc[count_job,10] = None
-
-
+                # job details
+                try:
+                    temp['job description'] = self.browser.find_element_by_xpath(
+                        '//div[@id="job-details"]'
+                        ).text.strip().replace('\n', ', ')
+                except:
+                    temp['job description'] = None  
+                
+                # seniority level
+                try:
+                    temp['seniority'] = self.browser.find_element_by_xpath(
+                        '//h3[contains(text(),"Seniority Level")]/following::*'
+                        ).text.strip()
+                except:
+                    temp['seniority'] = None  
+                
+                # Industry
+                try:
+                    temp['industry'] = self.browser.find_element_by_xpath(
+                        '//h3[contains(text(),"Industry")]/following::*'
+                        ).text.strip()
+                except:
+                    temp['industry'] = None  
+                
+                # Employment Type
+                try:
+                    temp['employment type'] = self.browser.find_element_by_xpath(
+                        '//h3[contains(text(),"Employment Type")]/following::*'
+                        ).text.strip()
+                except:
+                    temp['employment type'] = None  
+                
+                #Job Functions
+                try:
+                    temp['functions'] = self.browser.find_element_by_xpath(
+                        '//h3[contains(text(),"Job Functions")]/following::*'
+                        ).text.strip()
+                except:
+                    temp['functions'] = None  
 
                 # company description
                 try:
-                    findall = self.browser.find_element_by_id('company-description-text')
-                    description = findall.text.strip()
-                    list1.iloc[count_job,11] = description
+                    temp['company description'] = self.browser.find_element_by_id(
+                        'company-description-text'
+                        ).text.strip()
                 except:
-                    list1.iloc[count_job,11] = None
+                    temp['company description'] = None
 
-                # write to file
-                data = list1.iloc[count_job,:]
+
+
+
+                """
+                Write to file
+                """
+
+                data = temp
                 with open('output.csv', 'a', newline='') as f:
                     try:
                         writer = csv.writer(f)
-                        writer.writerow(data)
+                        writer.writerow(data.values())
                         print('Job added to output.csv')
                     except:
                         print('*** Ooopss, NOT able to write job to output, sorry :(')
-                #list1.to_csv("output.csv", encoding=None, index=False)
-                #writer = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
-                #list1.to_excel(writer,'Sheet1')
-                #print(list1)
-                #writer.save()
 
+                
+
+
+                """
+                Count application and set sleep time
+                """
                 count_application = count_application + 1
 
                 if count_application % 20 == 0:
+                    sleepTime = random.randint(590, 900)
                     print('\n\n****************************************\n\n')
-                    print('Time for a nap - see you in 10 min..')
+                    print('Time for a nap - see you in ', sleepTime)
                     print('\n\n****************************************\n\n')
-                    time.sleep (600)
+                    time.sleep (sleepTime)
 
                 if count_job == len(jobs):
                     jobs_per_page = jobs_per_page + 25
@@ -366,11 +411,11 @@ if __name__ == '__main__':
             "\nPosition:  "+ position,
             "\nLocation:  "+ location)
 
-    # username = ''
-    # password = ''
-    # language = ''
-    # position = ''
-    # location = ''
+    username = ''
+    password = ''
+    language = ''
+    position = ''
+    location = ''
 
     #start bot
     bot = EasyApplyBot(username,password, language, position, location) #, resumeloctn)
