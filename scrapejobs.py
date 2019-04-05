@@ -18,7 +18,7 @@ import datetime
 
 import login
 
-# pyinstaller --onefile --windowed --icon=app.ico scrapejobs.py
+# pyinstaller --onefile --icon=app.ico scrapejobs.py
 
 class EasyApplyBot:
 
@@ -109,6 +109,7 @@ class EasyApplyBot:
         self.browser.set_window_position(0, 0)
         self.browser.maximize_window()
         self.browser, _ = self.next_jobs_page(jobs_per_page)
+        
         print("\nLooking for jobs.. Please wait..\n")
 
         self.browser.find_element_by_class_name(
@@ -140,6 +141,7 @@ class EasyApplyBot:
                 #position_number = str(count_job + jobs_per_page)
                 position_number = str(count_application)
                 print(f"\nPosition {position_number}:\n {self.browser.title} \n") # {string_easy} \n")
+                print(job,'\n')
 
                 now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
                 temp ['timestamp'] = str(now)
@@ -284,7 +286,7 @@ class EasyApplyBot:
                 if count_application % 20 == 0:
                     sleepTime = random.randint(590, 900)
                     print('\n\n****************************************\n\n')
-                    print('Time for a nap - see you in ', sleepTime)
+                    print('Time for a nap - see you in ', sleepTime/60, ' min')
                     print('\n\n****************************************\n\n')
                     time.sleep (sleepTime)
 
@@ -382,7 +384,7 @@ class EasyApplyBot:
 if __name__ == '__main__':
 
     # set use of gui (T/F)
-    useGUI = False
+    useGUI = True
     
     # use gui
     if useGUI == True:
